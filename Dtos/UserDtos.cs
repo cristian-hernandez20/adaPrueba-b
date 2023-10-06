@@ -6,8 +6,8 @@ namespace adaPrueba_b.Dtos
         public string name { get; set; } = string.Empty;
         public string lastName { get; set; } = string.Empty;
         public string addres { get; set; } = string.Empty;
-        public long? phone { get; set; }
-        public long? identification { get; set; }
+        public long phone { get; set; }
+        public long identification { get; set; }
         public string nameUser { get; set; } = string.Empty;
         public int rol { get; set; }
         public string token { get; set; } = string.Empty;

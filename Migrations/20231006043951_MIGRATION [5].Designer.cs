@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using adaPrueba_b.Data;
@@ -11,9 +12,11 @@ using adaPrueba_b.Data;
 namespace adaPrueba_b.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20231006043951_MIGRATION [5]")]
+    partial class MIGRATION5
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -42,35 +45,12 @@ namespace adaPrueba_b.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<decimal>("price")
-                        .HasColumnType("numeric(15, 0)");
-
                     b.Property<decimal>("quantity")
                         .HasColumnType("numeric(3, 0)");
 
                     b.HasKey("id");
 
                     b.ToTable("Product");
-
-                    b.HasData(
-                        new
-                        {
-                            id = new Guid("86ca7c32-d03e-41bb-b69a-843522bcc334"),
-                            descript = "Audifonos Sony MX1000, de muy buena calidad",
-                            image = "",
-                            name = "Audifonos",
-                            price = 1000000m,
-                            quantity = 10m
-                        },
-                        new
-                        {
-                            id = new Guid("2956ac13-b649-47e6-9ff6-9ae1ed312a3c"),
-                            descript = "Estuche para Audifonos Sony MX1000, de muy buena calidad",
-                            image = "",
-                            name = "Estuche audifono",
-                            price = 20000m,
-                            quantity = 10m
-                        });
                 });
 
             modelBuilder.Entity("adaPrueba_b.Models.Role", b =>

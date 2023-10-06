@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using adaPrueba_b.Data;
 using adaPrueba_b.Dtos;
+using adaPrueba_b.Midddlewares;
 namespace adaPrueba_b.Services.UserServices
 {
 
@@ -8,26 +9,27 @@ namespace adaPrueba_b.Services.UserServices
     {
         Task<ServiceResponse<UserRegisterDtos>> SaveUser(UserRegisterDtos user);
         Task<ServiceResponse<User>> EditUser(User user);
-        Task<ServiceResponse<User>> DeleteUser(Guid id);
-        Task<ServiceResponse<User>> GetUser(int nameUser);
+        Task<ServiceResponse<bool>> DeleteUser(Guid id);
         Task<ServiceResponse<List<User>>> GetUsers();
 
     }
     public class UserServices : IUserServices
     {
         private readonly DataContext _context;
+        private readonly IAutorizacion _autorizacion;
 
-        public UserServices(DataContext context)
+        public UserServices(DataContext context, IAutorizacion autorizacion)
         {
             _context = context;
+            _autorizacion = autorizacion;
         }
         public async Task<ServiceResponse<UserRegisterDtos>> SaveUser(UserRegisterDtos user)
         {
             ServiceResponse<UserRegisterDtos> response = new();
             try
             {
-                var dbMunic = await _context.User.FirstOrDefaultAsync(c => c.nameUser.Equals(user.nameUser));
-                if (dbMunic != null)
+                var dbUser = await _context.User.FirstOrDefaultAsync(c => c.nameUser.Equals(user.nameUser));
+                if (dbUser != null)
                 {
                     response.Success = false;
                     response.Message = $"El usuario {user.nameUser} ya se encuentra registrado";
@@ -74,16 +76,22 @@ namespace adaPrueba_b.Services.UserServices
             ServiceResponse<User> response = new();
             try
             {
-                var dbMunic = await _context.User.FirstOrDefaultAsync(c => c.id.Equals(user.id));
-                if (dbMunic == null)
+                var dbUser = await _context.User.FirstOrDefaultAsync(c => c.id.Equals(user.id));
+                if (dbUser == null)
                 {
                     response.Success = false;
                     response.Message = $"El usuario con el código {user.nameUser} no existe";
                     return response;
                 }
-                _context.Entry(dbMunic).State = EntityState.Detached;
-                dbMunic = user;
-                _context.Update(user);
+                _context.Entry(dbUser).State = EntityState.Detached;
+                dbUser.id = user.id;
+                dbUser.name = user.name;
+                dbUser.lastName = user.lastName;
+                dbUser.addres = user.addres;
+                dbUser.phone = user.phone;
+                dbUser.identification = user.identification;
+                dbUser.nameUser = user.nameUser;
+                _context.Update(dbUser);
 
                 await _context.SaveChangesAsync();
                 response.Success = true;
@@ -100,23 +108,22 @@ namespace adaPrueba_b.Services.UserServices
             return response;
         }
 
-        public async Task<ServiceResponse<User>> DeleteUser(Guid id)
+        public async Task<ServiceResponse<bool>> DeleteUser(Guid id)
         {
-            ServiceResponse<User> response = new();
+            ServiceResponse<bool> response = new();
             try
             {
-                var dbMunic = await _context.User.FirstOrDefaultAsync(c => c.id.Equals(id));
-                if (dbMunic == null)
+                var dbUser = await _context.User.FirstOrDefaultAsync(c => c.id.Equals(id));
+                if (dbUser == null)
                 {
                     response.Success = false;
                     response.Message = $"El usuario {id} no se existe";
                     return response;
                 }
-                _context.User.Remove(dbMunic);
+                _context.User.Remove(dbUser);
                 await _context.SaveChangesAsync();
-                response.Message = $"El usuario {id} se elimino correctamente";
+                response.Message = $"El usuario {dbUser.nameUser} se elimino correctamente";
                 response.Success = true;
-                response.Data = dbMunic;
             }
             catch (Exception ex)
             {
@@ -130,10 +137,19 @@ namespace adaPrueba_b.Services.UserServices
         public async Task<ServiceResponse<List<User>>> GetUsers()
         {
             ServiceResponse<List<User>> response = new();
+
+            int role = _autorizacion.GetRoleId();
+
+            if (role == 1)
+            {
+                response.Success = false;
+                response.Message = $"No tiene autorización para realizar esta solicitud";
+                return response;
+            }
             try
             {
-                var dbMunic = await _context.User.ToListAsync();
-                if (dbMunic == null || !dbMunic.Any())
+                var dbUser = await _context.User.ToListAsync();
+                if (dbUser == null || !dbUser.Any())
                 {
                     response.Success = false;
                     response.Message = "No existen usuario";
@@ -141,7 +157,7 @@ namespace adaPrueba_b.Services.UserServices
                 }
                 response.Message = "User";
                 response.Success = true;
-                response.Data = dbMunic;
+                response.Data = dbUser;
             }
             catch (Exception ex)
             {
@@ -152,32 +168,6 @@ namespace adaPrueba_b.Services.UserServices
             }
             return response;
 
-        }
-
-        public async Task<ServiceResponse<User>> GetUser(int nameUser)
-        {
-            ServiceResponse<User> response = new();
-            try
-            {
-                var dbMunic = await _context.User.FirstOrDefaultAsync(c => c.nameUser.Equals(nameUser));
-                if (dbMunic == null)
-                {
-                    response.Success = false;
-                    response.Message = $"No se encontro el usuario {nameUser}";
-                    return response;
-                }
-                response.Message = "User";
-                response.Success = true;
-                response.Data = dbMunic;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception -> {ex}");
-                response.Success = false;
-                response.Message = "Ocurrió un error al obtener el usuario.";
-                response.Error = $"Exception -> {ex}";
-            }
-            return response;
         }
     }
 }

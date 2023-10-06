@@ -10,6 +10,8 @@ using adaPrueba_b.Midddlewares;
 using adaPrueba_b.Data;
 
 using adaPrueba_b.Services.UserServices;
+using adaPrueba_b.Services.ProductServices;
+using adaPrueba_b.Services.ShoppingServices;
 
 
 
@@ -29,7 +31,7 @@ namespace adaPrueba_b
         {
             services.AddCors(options =>
             {
-                options.AddPolicy(name: "CorsPolicyProsoft", builder =>
+                options.AddPolicy(name: "CorsPolicyAda", builder =>
                 {
                     builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
                 });
@@ -69,9 +71,9 @@ namespace adaPrueba_b
             /* Middlewares */
 
             services.AddScoped<IAutorizacion, Autorizacion>();
-
-
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<IProductServices, ProductServices>();
+            services.AddScoped<IShoppingServices, ShoppingServices>();
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -82,7 +84,7 @@ namespace adaPrueba_b
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-            app.UseCors("CorsPolicyProsoft");
+            app.UseCors("CorsPolicyAda");
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthorization();

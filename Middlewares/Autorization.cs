@@ -12,6 +12,7 @@ namespace adaPrueba_b.Midddlewares
     public interface IAutorizacion
     {
         Task<ServiceResponse<UserDtos>> SingIn(string nameUser, string password);
+        int GetRoleId();
     }
     public class Autorizacion : IAutorizacion
     {
@@ -79,13 +80,6 @@ namespace adaPrueba_b.Midddlewares
             using HMACSHA512 hmac = new(passwordSalt);
             var computedHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             return computedHash.SequenceEqual(passwordHash);
-        }
-
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using var hmac = new HMACSHA512();
-            passwordSalt = hmac.Key;
-            passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
         }
 
         private async Task<string> CreateToken(User user)

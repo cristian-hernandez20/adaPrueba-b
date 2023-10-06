@@ -28,8 +28,6 @@ namespace adaPrueba_b.Models
         [Column(TypeName = "numeric(1, 0)")]
         public int rol { get; set; }
 
-        public string token { get; set; } = string.Empty;
-
         [Required]
         public byte[] PasswordHash { get; set; } = { 0 };
         [Required]
