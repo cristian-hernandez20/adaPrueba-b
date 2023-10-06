@@ -1,13 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using adaPrueba_b.Services.ProductServices;
-using adaPrueba_b.Dtos;
-
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 
 namespace adaPrueba_b.Controllers.v1
 {
-    [Route("api")]
+    [Route("api"), Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ApiController]
     public class ProductController : ControllerBase
     {

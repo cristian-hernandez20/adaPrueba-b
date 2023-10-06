@@ -12,8 +12,10 @@ namespace adaPrueba_b.Services.ShoppingServices
     public class ShoppingServices : IShoppingServices
     {
         private readonly DataContext _context;
-        public ShoppingServices(DataContext context)
+        private readonly IAutorizacion _autorizacion;
+        public ShoppingServices(DataContext context, IAutorizacion autorizacion)
         {
+            _autorizacion = autorizacion;
             _context = context;
         }
         public async Task<ServiceResponse<List<ShoppingRegisterDtos>>> SaveShoppingMasive(List<ShoppingRegisterDtos> product)
@@ -31,12 +33,16 @@ namespace adaPrueba_b.Services.ShoppingServices
                     var dbProductSelect = await _context.Product.FirstOrDefaultAsync(c => c.id.Equals(item.id_product));
                     if (dbProductSelect != null)
                     {
+                        if (dbProductSelect.quantity == 0)
+                        {
+                            response.Success = false;
+                            response.Message = $"No existen hay mas productos en la tienda";
+                            return response;
+                        }
                         _context.Entry(dbProductSelect).State = EntityState.Detached;
                         dbProductSelect.quantity = dbProductSelect.quantity - 1;
                         _context.Update(dbProductSelect);
                     }
-
-
                     await _context.SaveChangesAsync();
                     dbProductList.Add(dbProduct);
                 }
@@ -65,6 +71,21 @@ namespace adaPrueba_b.Services.ShoppingServices
                 dbProduct.id = Guid.NewGuid();
                 dbProduct.id_product = product.id_product;
                 dbProduct.id_user = product.id_user;
+
+                var dbProductSelect = await _context.Product.FirstOrDefaultAsync(c => c.id.Equals(product.id_product));
+                if (dbProductSelect != null)
+                {
+                    if (dbProductSelect.quantity == 0)
+                    {
+                        response.Success = false;
+                        response.Message = $"No existen hay mas productos en la tienda";
+                        return response;
+                    }
+                    _context.Entry(dbProductSelect).State = EntityState.Detached;
+                    dbProductSelect.quantity = dbProductSelect.quantity - 1;
+                    _context.Update(dbProductSelect);
+                }
+
                 _context.Shopping.Add(dbProduct);
                 response.Success = true;
                 await _context.SaveChangesAsync();
@@ -86,6 +107,13 @@ namespace adaPrueba_b.Services.ShoppingServices
             ServiceResponse<List<Shopping>> response = new();
             try
             {
+                int role = _autorizacion.GetRoleId();
+                if (role == 2)
+                {
+                    response.Success = false;
+                    response.Message = $"No tiene autorización para realizar esta solicitud";
+                    return response;
+                }
                 var dbShopping = await _context.Shopping.Include(x => x.Product).Include(x => x.User).ToListAsync();
                 if (dbShopping == null || !dbShopping.Any())
                 {

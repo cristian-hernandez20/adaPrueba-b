@@ -27,6 +27,14 @@ namespace adaPrueba_b.Services.ProductServices
             ServiceResponse<Product> response = new();
             try
             {
+                int role = _autorizacion.GetRoleId();
+                if (role == 2)
+                {
+                    response.Success = false;
+                    response.Message = $"No tiene autorización para realizar esta solicitud";
+                    return response;
+                }
+
                 var dbProduct = await _context.Product.FirstOrDefaultAsync(c => c.name.Equals(product.name));
                 if (dbProduct != null)
                 {
@@ -55,6 +63,14 @@ namespace adaPrueba_b.Services.ProductServices
             ServiceResponse<Product> response = new();
             try
             {
+                int role = _autorizacion.GetRoleId();
+                if (role == 2)
+                {
+                    response.Success = false;
+                    response.Message = $"No tiene autorización para realizar esta solicitud";
+                    return response;
+                }
+
                 var dbProduct = await _context.Product.FirstOrDefaultAsync(c => c.id.Equals(product.id));
                 if (dbProduct == null)
                 {
@@ -86,6 +102,13 @@ namespace adaPrueba_b.Services.ProductServices
             ServiceResponse<bool> response = new();
             try
             {
+                int role = _autorizacion.GetRoleId();
+                if (role == 2)
+                {
+                    response.Success = false;
+                    response.Message = $"No tiene autorización para realizar esta solicitud";
+                    return response;
+                }
                 var dbProduct = await _context.Product.FirstOrDefaultAsync(c => c.id.Equals(id));
                 if (dbProduct == null)
                 {
@@ -112,7 +135,7 @@ namespace adaPrueba_b.Services.ProductServices
             ServiceResponse<List<Product>> response = new();
             try
             {
-                var dbProduct = await _context.Product.ToListAsync();
+                var dbProduct = await _context.Product.OrderBy(x => x.name).ToListAsync();
                 if (dbProduct == null || !dbProduct.Any())
                 {
                     response.Success = false;

@@ -138,16 +138,16 @@ namespace adaPrueba_b.Services.UserServices
         {
             ServiceResponse<List<User>> response = new();
 
-            int role = _autorizacion.GetRoleId();
-
-            if (role == 1)
-            {
-                response.Success = false;
-                response.Message = $"No tiene autorización para realizar esta solicitud";
-                return response;
-            }
             try
             {
+                int role = _autorizacion.GetRoleId();
+
+                if (role == 2)
+                {
+                    response.Success = false;
+                    response.Message = $"No tiene autorización para realizar esta solicitud";
+                    return response;
+                }
                 var dbUser = await _context.User.ToListAsync();
                 if (dbUser == null || !dbUser.Any())
                 {

@@ -2,9 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using adaPrueba_b.Services.ShoppingServices;
 using adaPrueba_b.Dtos;
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-
 namespace adaPrueba_b.Controllers.v1
 {
     [Route("api")]
